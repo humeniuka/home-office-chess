@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Online-Schach</title>
+    <script src="./jquery.js"></script>
+    <script>
+        $('head').append('<link rel="stylesheet" type="text/css" href="./chessboardjs/css/chessboard-1.0.0.css">');
+    </script>       
+    <script src="./chessboardjs/js/chessboard-1.0.0.js"></script>
+</head>
+<body>
+<!--Space for the chess board  -->
+    <div id="myBoard" style="width: 800px"></div>
+    
+<!--Buttons -->
+    <button id="switchColourBtn">Farben tauschen</button>
+    <button id="resetBtn">Anfangsposition</button>
+    
+    <script>
+    $( document ).ready(function() {  
+    
+        // Output FEN string whenever the board position changes.
+        function onChange (oldPos, newPos) {
+            console.log('Position changed:')
+            console.log('Old position: ' + Chessboard.objToFen(oldPos))
+            console.log('New position: ' + Chessboard.objToFen(newPos))
+            console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        }
+    
+        var config = {
+          draggable: true,
+          dropOffBoard: 'snapback', // this is the default
+          position: 'start',
+          orientation: 'black',
+          onChange: onChange
+        }  
+        
+        var board = Chessboard('myBoard', config)
+        
+        // Change orientation of white chess pieces.
+        $('#switchColourBtn').on('click', function () {
+        if (config.orientation == 'black') board.orientation('white')        
+        if (config.orientation == 'white') board.orientation('black')        
+        })
+        
+        // Reset to initial position.
+        $('#resetBtn').on('click', function () {
+            board.position('start')
+            board.orientation(config.orientation)
+        })        
+    
+    });
+    </script>
+    
+</body>
+</html>

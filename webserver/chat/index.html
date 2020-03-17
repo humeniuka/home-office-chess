@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+    <head>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="./css/style.css">
+    </head>
+    <body>
+
+<div class="chat-container">
+  <div class="row">
+    <div id="iobrqj" class="cell">
+      <div id="room-name">Chat</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="cell">
+      <form class="form">
+        <div class="form-group">
+        </div>
+        <div class="form-group">
+        </div>
+        <div class="form-group">
+          <label class="label">Message</label>
+        </div>
+        <div class="form-group">
+          <textarea id="text-input" class="textarea"></textarea>
+          <button type="button" id="send-button" onclick="sendMessage()" class="button">Send a message</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="error-messages" class="error-messages"> 
+  </div>
+  <div id="transcript-box">
+    <div id="message-box-left-template" class="row message-box">
+      <div id="inor8g" class="cell">
+        <div id="message-user-name" class="message-user-name">
+          User 1
+        </div>
+      </div>
+      <div id="i51w91" class="cell">
+        <div id="message-text" class="message-text">
+          <div>some message.
+            <br/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="separator" class="row">
+    </div>
+    <div id="message-box-right-template" class="row message-box">
+      <div id="irzxav" class="cell">
+        <div id="message-text" class="message-text">
+          Some other message
+        </div>
+      </div>
+      <div id="ib403h" class="cell">
+        <div id="message-user-name" class="message-user-name">
+          User 2
+        </div>
+      </div>
+    </div>
+    <div id="notification-template" class="notification">
+      Notification
+    </div>
+    <div id="separator-2" class="row">
+    </div>
+  </div>
+</div>
+
+    </body>
+
+<script>
+ 'use strict';
+
+ hideTemplates();
+
+ // find room name from the query string, i.e.
+ //     'index.html?room=chat'    
+ // gives chatRoom = 'char'
+ var chatRoom = "default";
+ if (window.location.search.search(/\?room=/) > -1) {
+     chatRoom = window.location.search.replace(/\?room=/,"");
+ }
+ document.getElementById("room-name").innerHTML = "Room: " + chatRoom + "</br>";
+ 
+ // determine user name
+ var userName;
+ while ((userName === undefined) || (userName === "") || (userName === null)) {
+     userName = prompt("What's your name?");
+ }
+ 
+ // user ID
+ var userID;
+
+ function formatDate (dateStr) {
+     var date = new Date(dateStr);
+     var days = ["Mon", "Tue", "Wed", "Thu", "Fr", "Sat", "Sun"];
+     var fmt = days[date.getDay()] + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+     return fmt;
+ }
+
+ function hideTemplates() {
+     var templates = ["message-box-right-template", "message-box-left-template", "notification-template"];
+     for (var t of templates) {
+	 var elem = document.getElementById(t);
+	 elem.style.visibility = "hidden";
+     }
+ }
+ 
+ const addMessage = (msg) => {
+     var messageBoxTemplate;
+     if (msg.user === userName) {
+	 // show my own messages on the right
+	 messageBoxTemplate = document.getElementById("message-box-right-template");
+     } else {
+	 // and the messages of other users on the left
+	 messageBoxTemplate = document.getElementById("message-box-left-template");
+     }
+     var messageBox = messageBoxTemplate.cloneNode(true);
+     // make message visible
+     messageBox.style.visibility = "visible";
+     console.log(transcript);
+
+     messageBox.querySelector("#message-user-name").innerHTML = msg.user;
+     //messageBox.querySelector("#message-text").innerHTML = msg.text + "<center><small><i>(" + formatDate(msg.date) + ")</i></small></center>";
+     messageBox.querySelector("#message-text").innerHTML = msg.text + "<span style=\"float:right\"><i><small>(" + formatDate(msg.date) + ")</small></i></span>"; 
+
+     var transcript = document.getElementById("transcript-box");
+     transcript.prepend(messageBox);
+ };
+
+ //
+ //addMessage({user: "Alexander",
+ // date: "Mon 20",
+ // text: "Hallo"});
+ 
+ const addNotification = (msg) => {
+     const notificationTemplate = document.getElementById("notification-template");
+     var notification = notificationTemplate.cloneNode(true);
+     notification.innerHTML = msg.data;
+     notification.style.visibility = "visible";
+     //
+     var transcript = document.getElementById("transcript-box");
+     transcript.prepend(notification);
+ };
+
+ const ws = new WebSocket('ws://humeniuk.xyz:9000');
+
+// Connection opened
+ ws.addEventListener('open', function (event) {
+     const loginMsg = {
+    	 type: "join",
+	 room: chatRoom,
+         user: userName
+     };
+     ws.send(JSON.stringify(loginMsg));
+ });
+
+ ws.addEventListener("error", function (event) {
+     var error = document.getElementById("error-messages");
+     error.innerHTML = `Could not connect to websocket`;
+ });
+ 
+ window.addEventListener("beforeunload", function(event){
+     // Tell the other users that you are leaving the chat by closing the browser window.
+     var msg = {
+	 id: userID,
+	 user: userName,
+	 room: chatRoom,
+	 type: "leave"
+     };
+     ws.send(JSON.stringify(msg));
+ }, false);
+ 
+// Listen for messages
+ ws.addEventListener('message', function (event) {
+     try {
+	 var msg = JSON.parse(event.data);
+     } catch (e) {
+	 console.log(`Error ${e}`);
+     }
+     console.log("Recieved " + JSON.stringify(msg));
+     switch(msg.type) {
+	 case "message":
+	     addMessage(msg);
+	     console.log("Adding message " + msg);
+	     break;
+	 case "notification":
+	     addNotification(msg);
+	     console.log("Adding notification " + msg);
+	     break;
+	 case "transcript":
+	     // set user id (global variable)
+	     userID = msg.id;
+	     console.log("My user ID is " + userID);	     
+	     const transcript = msg.data;
+	     for(var m of transcript) {
+		 console.log("Adding message " + m);
+		 addMessage(m);
+	     }
+	     break;
+	 case "error":
+	     var error = document.getElementById("error-messages");
+	     error.innerHTML = `An error occurred: ${msg.data}`;
+	     break;
+	 default:
+	     console.log(`Unknown message type ${msg.type}`);
+     }
+     console.log('Message from server ', event.data);
+ });
+ 
+ function sendMessage() {
+     var input = document.getElementById("text-input")
+     var message = input.value;
+     if (message === "") return;
+     var transcript = document.getElementById("transcript");
+     var msg = {
+	 id: userID,
+	 room: chatRoom,
+	 user: userName,
+	 type: "message",
+	 data: message
+     };
+     console.log("id = " + userID);
+     console.log("data = " + message);
+     console.log("Sent message " + JSON.stringify(msg));
+     ws.send(JSON.stringify(msg));
+     // clean input field
+     input.value = "";
+ }
+</script>
+
+</html>

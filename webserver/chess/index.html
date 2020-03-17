@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+    <head>
+	<meta charset="utf-8">
+	<title>Home-Office</title>
+	<link rel="stylesheet" href="./css/style.css">
+	<script src="./jquery.js"></script>
+	<script>
+         $('head').append('<link rel="stylesheet" type="text/css" href="./chessboardjs/css/chessboard-1.0.0.css">');
+	</script>       
+	<script src="./chessboardjs/js/chessboard-1.0.0.js"></script>
+    </head>
+    <body>
+<div class="row">
+<div class="chat-container">
+  <div class="row">
+    <div id="iobrqj" class="cell">
+      <div id="room-name">Chat</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="cell">
+      <form class="form">
+        <div class="form-group">
+        </div>
+        <div class="form-group">
+        </div>
+        <div class="form-group">
+          <label class="label">Message</label>
+        </div>
+        <div class="form-group">
+          <textarea id="text-input" class="textarea"></textarea>
+          <button type="button" id="send-button" onclick="sendMessage()" class="button">Send a message</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div id="error-messages" class="error-messages"> 
+  </div>
+  <div id="transcript-box">
+    <div id="message-box-left-template" class="row message-box">
+      <div id="inor8g" class="cell">
+        <div id="message-user-name" class="message-user-name">
+          User 1
+        </div>
+      </div>
+      <div id="i51w91" class="cell">
+        <div id="message-text" class="message-text">
+          <div>some message.
+            <br/>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="separator" class="row">
+    </div>
+    <div id="message-box-right-template" class="row message-box">
+      <div id="irzxav" class="cell">
+        <div id="message-text" class="message-text">
+          Some other message
+        </div>
+      </div>
+      <div id="ib403h" class="cell">
+        <div id="message-user-name" class="message-user-name">
+          User 2
+        </div>
+      </div>
+    </div>
+    <div id="notification-template" class="notification">
+      Notification
+    </div>
+    <div id="separator-2" class="row">
+    </div>
+  </div>
+</div>
+<div class="spacer"></div>
+<div class="chessboard-container">
+    <div id="myBoard" style="width: 700px"></div>
+    <button id="resetBtn">New Game</button>
+    <button id="flipBtn">Flip Board</button>
+</div>
+
+</div>
+    </body>
+
+<script>
+
+
+ function onDrop (source, target, piece, newPos, oldPos, orientation) {
+     newFen = Chessboard.objToFen(newPos);
+     oldFen = Chessboard.objToFen(oldPos);
+     console.log('Source: ' + source);
+     console.log('Target: ' + target);
+     console.log('Piece: ' + piece);
+     console.log('New position: ' + newFen);
+     console.log('Old position: ' + oldFen);
+     console.log('Orientation: ' + orientation);
+     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+
+     sendFen(newFen);
+
+     // write move into chat window
+     var move = piece + " from " + source + " to " + target;
+     var msg = {
+	 id: userIDchat,
+	 room: chatRoom,
+	 user: userName,
+	 type: "message",
+	 data: move
+     };
+     console.log("Sent move message " + JSON.stringify(msg));
+     wsChat.send(JSON.stringify(msg));
+
+ }
+    
+ var config = {
+     draggable: true,
+     sparePieces: true,
+     position: 'start',
+     onDrop: onDrop
+ }  
+        
+ var board = Chessboard('myBoard', config);
+        
+ // Reset to initial position.
+ $('#resetBtn').on('click', function () {
+     console.log("reset board");
+     board.position('start');
+     board.orientation(config.orientation);
+
+     sendFen(board.fen());
+     
+ });       
+
+ $('#flipBtn').on('click', function () {
+     board.flip();
+ });
+
+ function setBoardOrientation(color) {
+     board.orientation(color);
+ }
+ 
+ function updateBoard(fen) {
+     console.log("old fen string = " + board.fen());
+     console.log("new fen string = " + fen);
+     if (fen === board.fen()) {
+	 console.log("no change of fen string");
+	 return;
+     }
+     console.log("updateBoard = " + fen);
+     if (fen === undefined) {
+	 board.position('start');
+     } else {
+	 board.position(fen, true);
+     }
+ }
+
+ function addChessNotification(msg) {
+     // ignore notifications
+     console.log("notification via wsChess: " + JSON.stringify(msg));
+ }
+ 
+</script>
+    
+<script>
+ 'use strict';
+
+ hideTemplates();
+
+ // find room name from the query string, i.e.
+ //     'index.html?room=chat'    
+ // gives chatRoom = 'char'
+ var chatRoom = "default";
+ if (window.location.search.search(/\?room=/) > -1) {
+     chatRoom = window.location.search.replace(/\?room=/,"");
+ }
+ document.getElementById("room-name").innerHTML = "Room: " + chatRoom + "</br>";
+ 
+ // determine user name
+ var userName;
+ while ((userName === undefined) || (userName === "") || (userName === null)) {
+     userName = prompt("What's your name?");
+ }
+ 
+ // user ID
+ var userIDchat;
+ var userIDchess;
+
+ function formatDate (dateStr) {
+     var date = new Date(dateStr);
+     var days = ["Mon", "Tue", "Wed", "Thu", "Fr", "Sat", "Sun"];
+     var fmt = days[date.getDay()] + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+     return fmt;
+ }
+
+ function hideTemplates() {
+     var templates = ["message-box-right-template", "message-box-left-template", "notification-template"];
+     for (var t of templates) {
+	 var elem = document.getElementById(t);
+	 elem.style.visibility = "hidden";
+     }
+ }
+ 
+ const addMessage = (msg) => {
+     var messageBoxTemplate;
+     if (msg.room !== chatRoom) {
+	 return;
+     }
+     if (msg.user === userName) {
+	 // show my own messages on the right
+	 messageBoxTemplate = document.getElementById("message-box-right-template");
+     } else {
+	 // and the messages of other users on the left
+	 messageBoxTemplate = document.getElementById("message-box-left-template");
+     }
+     var messageBox = messageBoxTemplate.cloneNode(true);
+     // make message visible
+     messageBox.style.visibility = "visible";
+     console.log(transcript);
+
+     messageBox.querySelector("#message-user-name").innerHTML = msg.user;
+     messageBox.querySelector("#message-text").innerHTML = msg.data + "<span style=\"float:right\"><i><small>(" + formatDate(msg.date) + ")</small></i></span>"; 
+
+     var transcript = document.getElementById("transcript-box");
+     transcript.prepend(messageBox);
+ };
+
+ 
+ const addNotification = (msg) => {
+     if (msg.room !== chatRoom) {
+	 return;
+     }
+     const notificationTemplate = document.getElementById("notification-template");
+     var notification = notificationTemplate.cloneNode(true);
+     notification.innerHTML = msg.data;
+     notification.style.visibility = "visible";
+     //
+     var transcript = document.getElementById("transcript-box");
+     transcript.prepend(notification);
+ };
+
+ const wsChat = new WebSocket('ws://humeniuk.xyz:9000');
+
+// Connection opened
+ wsChat.addEventListener('open', function (event) {
+     const loginMsg = {
+    	 type: "join",
+	 room: chatRoom,
+         user: userName
+     };
+     wsChat.send(JSON.stringify(loginMsg));
+ });
+
+ wsChat.addEventListener("error", function (event) {
+     var error = document.getElementById("error-messages");
+     error.innerHTML = `Could not connect to websocket`;
+ });
+  
+// Listen for messages
+ wsChat.addEventListener('message', function (event) {
+     try {
+	 var msg = JSON.parse(event.data);
+     } catch (e) {
+	 console.log(`Error ${e}`);
+     }
+     console.log("Recieved " + JSON.stringify(msg));
+     switch(msg.type) {
+	 case "message":
+	     addMessage(msg);
+	     console.log("Adding message " + msg);
+	     break;
+	 case "notification":
+	     addNotification(msg);
+	     console.log("Adding notification " + msg);
+	     break;
+	 case "transcript":
+	     // set user id (global variable)
+	     userIDchat = msg.id;
+	     console.log("My user ID is " + userIDchat);  
+	     const transcript = msg.data;
+	     for(var m of transcript) {
+		 console.log("Adding message " + m);
+		 addMessage(m);
+	     }
+	     break;
+	 case "error":
+	     var error = document.getElementById("error-messages");
+	     error.innerHTML = `An error occurred: ${msg.data}`;
+	     break;
+	 default:
+	     console.log(`Unknown message type ${msg.type}`);
+     }
+     console.log('Message from server ', event.data);
+ });
+ 
+ function sendMessage() {
+     var input = document.getElementById("text-input")
+     var message = input.value;
+     if (message === "") return;
+     var msg = {
+	 id: userIDchat,
+	 room: chatRoom,
+	 user: userName,
+	 type: "message",
+	 data: message
+     };
+     console.log("id = " + userIDchat);
+     console.log("data = " + message);
+     console.log("Sent message " + JSON.stringify(msg));
+     wsChat.send(JSON.stringify(msg));
+     // clean input field
+     input.value = "";
+ }
+</script>
+
+<script>
+"use strict";
+
+ const wsChess = new WebSocket('ws://humeniuk.xyz:9000');
+
+ const chessRoom = chatRoom+"-chess"
+// Connection opened
+ wsChess.addEventListener('open', function (event) {
+     const loginMsg = {
+    	 type: "join",
+	 room: chessRoom,
+         user: userName
+     };
+     wsChess.send(JSON.stringify(loginMsg));
+ });
+
+ wsChat.addEventListener("error", function (event) {
+     var error = document.getElementById("error-messages");
+     error.innerHTML = `Could not connect to websocket`;
+ });
+ 
+// Listen for messages
+ wsChess.addEventListener('message', function (event) {
+     try {
+	 var msg = JSON.parse(event.data);
+     } catch (e) {
+	 console.log(`Error ${e}`);
+     }
+     console.log("Recieved " + JSON.stringify(msg));
+     switch(msg.type) {
+	 case "message":
+	     var fen = msg.data;
+	     updateBoard(fen);
+	     console.log("Updating board " + msg);
+	     break;
+	 case "notification":
+	     addChessNotification(msg);
+	     break;
+	 case "transcript":
+	     // set user id (global variable)
+	     userIDchess = msg.id;
+	     console.log("My user ID is " + userIDchess);	     
+	     const transcript = msg.data;
+	     for(var move of transcript) {
+		 var fen = move.data;
+		 console.log("Received fen string " + fen);
+		 updateBoard(fen);
+	     }
+	     if (transcript.length % 2 == 0) {
+		 setBoardOrientation('white');
+	     } else {
+		 setBoardOrientation('black');
+	     }
+	     break;
+	 case "error":
+	     var error = document.getElementById("error-messages");
+	     error.innerHTML = `An error occurred: ${msg.data}`;
+	     break;
+	 default:
+	     console.log(`Unknown message type ${msg.type}`);
+     }
+     console.log('Message from server ', event.data);
+ });
+ 
+ function sendFen(fen) {
+     var msg = {
+	 id: userIDchess,
+	 room: chessRoom,
+	 user: userName,
+	 type: "message",
+	 data: fen
+     };
+     console.log("Sent message " + JSON.stringify(msg));
+     wsChess.send(JSON.stringify(msg));
+ }
+
+
+ window.addEventListener("beforeunload", function(event){
+     // Tell the other users that you are leaving the chat by closing the browser window.
+     var msg = {
+	 id: userIDchat,
+	 user: userName,
+	 room: chatRoom,
+	 type: "leave"
+     };
+     wsChat.send(JSON.stringify(msg));
+
+     // Tell the other users that you are leaving the game
+     var msg = {
+	 id: userIDchess,
+	 user: userName,
+	 room: chessRoom,
+	 type: "leave"
+     };
+     wsChess.send(JSON.stringify(msg));
+ }, false);
+
+ 
+</script>
+</html>

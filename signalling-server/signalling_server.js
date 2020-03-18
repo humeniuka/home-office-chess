@@ -1,18 +1,50 @@
+#!/usr/bin/env node
 'use strict';
-
-const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
 const WebSocket = require("ws");
-const http = require("http");
 const uuid = require("uuid");
-const app = express();
 
-const port = process.env.PORT || 9000;
+const args = process.argv.slice(2);
+if (args.length < 2) {
+    var prog = path.basename(process.argv[1]);
+    console.log("\
+missing required arguments!\n\
+\n\
+Usage:  %s  keyDir  port\n\
+\n\
+ Starts a secure signalling server listening on the given `port` (int). The private\n\
+ key and certificate are taken from the directory `keyDir` (path).\n\
+\n\
+Example:\n\
+   %s  /etc/letsencrypt/live/site.com  9000\n\
+\n\
+", prog, prog);
+    process.exit(1);
+    
+}
+const keyDir = args[0];
+const port = args[1];
 
-// initialize a http server
-const server = http.createServer(app);
+// load SSL certificate
+try {
+    var privateKey = fs.readFileSync(path.join(keyDir, "privkey.pem"), "utf8");
+    var certificate = fs.readFileSync(path.join(keyDir, "fullchain.pem"), "utf8");
+} catch (err) {
+    console.log("Could not load private key and certificate from dictory " + keyDir + "!");
+    console.log(err);
+}
+
+var credentials =  { key: privateKey, cert: certificate };
+var httpsServer = https.createServer(credentials);
 
 // initialize the WebSocket server instance
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server(
+    {
+	server: httpsServer
+    }
+);
 
 class Room {
     constructor(name) {
@@ -159,8 +191,12 @@ wss.on("connection", ws => {
     });
 });
 
-// start our server
-server.listen(port, () => {
-    console.log(`Signalling server running on port: ${port}`);
-});
 
+// start our server
+try {
+    httpsServer.listen(port, () => {
+	console.log(`Signalling server running on port: ${port}`);
+    });
+} catch (err) {
+    console.log("ERROR: " + err);
+}

@@ -1,4 +1,7 @@
 **/node_modules/
+stunserver/
 # emacs backup files
 *~
 *\#*\#
+# ignore temporary run files
+**/run/

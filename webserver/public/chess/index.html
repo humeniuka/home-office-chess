@@ -7,7 +7,7 @@
 	<script src="./jquery.js"></script>
 	<script>
          $('head').append('<link rel="stylesheet" type="text/css" href="./chessboardjs/css/chessboard-1.0.0.css">');
-	</script>       
+	</script>
 	<script src="./chessboardjs/js/chessboard-1.0.0.js"></script>
     </head>
     <body>
@@ -121,21 +121,22 @@
  }  
         
  var board = Chessboard('myBoard', config);
-        
- // Reset to initial position.
- $('#resetBtn').on('click', function () {
+
+ resetBtn = document.getElementById("resetBtn");
+ resetBtn.addEventListener("click", function (event) {
      console.log("reset board");
      board.position('start');
      board.orientation(config.orientation);
 
      sendFen(board.fen());
      
- });       
-
- $('#flipBtn').on('click', function () {
-     board.flip();
  });
 
+ flipBtn = document.getElementById("flipBtn");
+ flipBtn.addEventListener("click", function (event) {
+     board.flip();
+ });
+ 
  function setBoardOrientation(color) {
      board.orientation(color);
  }
@@ -239,7 +240,10 @@
      transcript.prepend(notification);
  };
 
- const wsChat = new WebSocket('ws://humeniuk.xyz:9000');
+ // The signalling server should be running at port 9000 on the same host
+ // that serves the web page.
+ var host = window.location.hostname;
+ const wsChat = new WebSocket("wss://" + host + ":9000");
 
 // Connection opened
  wsChat.addEventListener('open', function (event) {
@@ -316,7 +320,7 @@
 <script>
 "use strict";
 
- const wsChess = new WebSocket('ws://humeniuk.xyz:9000');
+ const wsChess = new WebSocket("wss://" + host + ":9000");
 
  const chessRoom = chatRoom+"-chess"
 // Connection opened

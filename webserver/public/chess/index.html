@@ -13,6 +13,10 @@
 	<script src="./popup/js/popup.js"></script>
     </head>
     <body>
+	<div class="usage">
+	    <div class="usage-title">How does it work?</div>
+	    <div class="usage-text">Anyone who opens this page can move the pieces on the board and write messages to the other players. If you want to play with someone, send them the link to this page. If a room is full, you can create a new one by changing <tt>?room=...</tt> in the URL.</div>
+	</div>
 	<div class="row">
 	    <!-- ========================= CHAT WINDOW ================== //-->
 	    <div class="chat-container">
@@ -40,7 +44,7 @@
 		</div>
 		<div id="error-messages" class="error-messages"> 
 		</div>
-		<div id="transcript-box">
+		<div id="transcript-box" class="chat-transcript-box">
 		    <div id="message-box-left-template" class="row message-box">
 			<div id="inor8g" class="cell">
 			    <div id="message-user-name" class="message-user-name">
@@ -86,14 +90,14 @@
 	    <div class="horizontal-spacer"></div>
 	    <!-- ========================= VIDEO CHAT WINDOW ================== //-->
 	    <div id="video-container-list" class="video-container-list">
-		<div id="video-container-local" class="popup">
+		<div id="video-container-local" class="video-container popup">
 		    <div class="video-box-local">
 			<div id="video-user-name-local" style="display: none" class="video-user-name-local popup-header"></div>
 			<video id="localVideo" playsinline autoplay muted height="300px" width="400px"></video>
 		    </div>
 		    <div class="vertical-spacer"></div>
 		</div>
-		<div id="video-container-remote-template" class="popup" style="display: none">
+		<div id="video-container-remote-template" class="video-container popup" style="display: none">
 		    <div id="video-box-remote" class="video-box-remote">
 			<div id="video-user-name" class="video-user-name-remote popup-header"></div>
 			<video id="remoteVideo" playsinline autoplay height="300px" width="400px"></video>
@@ -265,7 +269,7 @@
  var host = window.location.hostname;
  const wsChat = new WebSocket("wss://" + host + ":9000");
 
-// Connection opened
+ // Connection opened
  wsChat.addEventListener('open', function (event) {
      const loginMsg = {
     	 type: "join",
@@ -277,7 +281,7 @@
 
  wsChat.addEventListener("error", function (event) {
      var error = document.getElementById("error-messages");
-     error.innerHTML = `Could not connect to websocket`;
+     error.innerHTML += "<div class='error'>[Chat] Could not connect to websocket. Try to reload the page.</div>";
  });
   
 // Listen for messages
@@ -285,36 +289,41 @@
      try {
 	 var msg = JSON.parse(event.data);
      } catch (e) {
-	 console.log(`Error ${e}`);
+	 console.log(`[Chat] Error ${e}`);
      }
-     console.log("Received " + JSON.stringify(msg));
+     console.log("[Chat] Received ", msg);
      switch(msg.type) {
 	 case "message":
 	     addMessage(msg);
-	     console.log("Received message ", msg);
+	     console.log("[Chat] Received message ", msg);
 	     break;
 	 case "notification":
 	     addNotification(msg);
-	     console.log("Received notification ", msg);
+	     console.log("[Chat] Received notification ", msg);
 	     break;
 	 case "transcript":
+	     if (userIDchat) {
+		 // This should never happen ???
+		 break;
+	     }
 	     // set user id (global variable)
 	     userIDchat = msg.id;
-	     console.log("My user ID is " + userIDchat);  
+	     console.log("[Chat] My user ID is " + userIDchat);  
 	     const transcript = msg.data;
+	     console.log("[Chat] got transcript from ongoing conversation");
 	     for(var m of transcript) {
-		 console.log("Adding message ", m);
+		 console.log("[Chat] Adding message from transcript", m);
 		 addMessage(m);
 	     }
 	     break;
 	 case "error":
 	     var error = document.getElementById("error-messages");
-	     error.innerHTML = `An error occurred: ${msg.data}`;
+	     error.innerHTML = `<div class='error'>[Chat] An error occurred: ${msg.data}</div>`;
 	     break;
 	 default:
-	     console.log(`Unknown message type ${msg.type}`);
-     }
-     console.log('Message from server ', event.data);
+	     console.log(`[Chat] Unknown message type ${msg.type}`);
+     } 
+     //console.log('Message from server ', event.data);
  });
  
  function sendMessage() {
@@ -328,9 +337,6 @@
 	 type: "message",
 	 data: message
      };
-     console.log("id = " + userIDchat);
-     console.log("data = " + message);
-     console.log("Sent message " + JSON.stringify(msg));
      wsChat.send(JSON.stringify(msg));
      // clean input field
      input.value = "";
@@ -357,7 +363,7 @@
 
  wsChess.addEventListener("error", function (event) {
      var error = document.getElementById("error-messages");
-     error.innerHTML = `Could not connect to websocket`;
+     error.innerHTML += "<div class='error'>[Chess] Could not connect to websocket.  Try to reload the page<div>";
  });
  
 // Listen for messages
@@ -395,7 +401,7 @@
 	     break;
 	 case "error":
 	     var error = document.getElementById("error-messages");
-	     error.innerHTML = `An error occurred: ${msg.data}`;
+	     error.innerHTML += `<div class='error'>An error occurred: ${msg.data}</div>`;
 	     break;
 	 default:
 	     console.log(`Unknown message type ${msg.type}`);
@@ -465,7 +471,7 @@
      
  }).catch(err => {
      var error = document.getElementById("error-messages");
-     error.innerHTML = `[RTC] Local video not available. You have to allow access to the camera.`;
+     error.innerHTML += "<div class='error'>[RTC] Local video not available. You have to allow access to the camera. Try to reload the page.</div>";
      console.log("ERROR:" + err);
  });
  
@@ -480,7 +486,7 @@
 
  wsRTC.addEventListener("error", function (event) {
      var error = document.getElementById("error-messages");
-     error.innerHTML = `Could not connect to websocket`;
+     error.innerHTML += "<div class='error'>[RTC] Could not connect to websocket. Try to reload the page.</div>";
  });
 
  // The STUN server has to run on the same host.
@@ -716,7 +722,7 @@
 	     break;
 	 case "error":
 	     var error = document.getElementById("error-messages");
-	     error.innerHTML = `An error occurred (RTC): ${msg.data}`;
+	     error.innerHTML = `<div class='error'>An error occurred (RTC): ${msg.data}. Try to reload the page.</div>`;
 	     break;
 	 default:
 	     console.log(`[RTC] Unknown message type ${msg.type}`);

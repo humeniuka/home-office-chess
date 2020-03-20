@@ -106,6 +106,7 @@ wss.on("connection", ws => {
 		if (rooms[roomName] === undefined) {
 		    // add new room
 		    rooms[roomName] = new Room(roomName);
+		    console.log("add new room " + roomName);
 		}
 		var room = rooms[roomName];
 
@@ -176,6 +177,7 @@ wss.on("connection", ws => {
 	    if (msg.data !== undefined) {
 		room.transcript.push(
 		    {user: msg.user,
+		     room: msg.room,
 		     data: msg.data,
 		     date: Date()
 		    });

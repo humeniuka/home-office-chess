@@ -59,8 +59,10 @@ body {
   margin:0 0 0 0;
 }
 .message-text{
-  text-align:left;
-  padding:5px 20px 5px 20px;
+/*    word-break: break-all;*/
+    overflow-wrap: anywhere;
+    text-align:left;
+    padding:5px 20px 5px 20px;
 }
 .message-box{
   display: flex;
@@ -72,13 +74,18 @@ body {
 *{
   box-sizing:border-box;
 }
+
 body{
   margin:0;
 }
 .chat-container{
-  width:30%;
-  height:600px;
-  overflow:auto;
+    /*
+    display: flex;
+    flex-direction: column;
+    */
+    /* width:30%; */
+    max-height: 100%; /*600px;*/
+    overflow:auto;
 }
 .received-date {
     font-size: 8;
@@ -148,6 +155,16 @@ body{
 }
 */
 
+.video-container {
+    display : flex;
+}
+
+.video-container-list {
+    display : flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .video-user-name-local {
   background-color: #d61d1d;
 }
@@ -155,3 +172,33 @@ body{
 .video-user-name-remote {
   background-color: #57dd21;
 }
+
+.error {
+    color: red;     
+}
+
+.chat-transcript-box {
+    max-height: 600px;
+    overflow: auto;
+}
+
+.usage {
+    display: flex;
+    flex-direction : column;
+    border-radius:10px 10px 10px 10px;
+    border:solid #1a0404;
+    padding:5px 5px;
+    max-width : 80%;
+    margin: auto;
+}
+
+.usage-title {
+    font-style : bold;
+    font-size : 20px;
+    margin: auto;
+}
+
+.usage-text {
+    font-style : italic;
+}
+

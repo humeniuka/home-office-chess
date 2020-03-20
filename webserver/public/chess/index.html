@@ -7,88 +7,109 @@
 	<script src="./jquery.js"></script>
 	<script>
          $('head').append('<link rel="stylesheet" type="text/css" href="./chessboardjs/css/chessboard-1.0.0.css">');
+	 $('head').append('<link rel="stylesheet" type="text/css" href="./popup/css/popup.css">');
 	</script>
 	<script src="./chessboardjs/js/chessboard-1.0.0.js"></script>
+	<script src="./popup/js/popup.js"></script>
     </head>
     <body>
-<div class="row">
-<div class="chat-container">
-  <div class="row">
-    <div id="iobrqj" class="cell">
-      <div id="room-name">Chat</div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="cell">
-      <form class="form">
-        <div class="form-group">
-        </div>
-        <div class="form-group">
-        </div>
-        <div class="form-group">
-          <label class="label">Message</label>
-        </div>
-        <div class="form-group">
-          <textarea id="text-input" class="textarea"></textarea>
-          <button type="button" id="send-button" onclick="sendMessage()" class="button">Send a message</button>
-        </div>
-      </form>
-    </div>
-  </div>
-  <div id="error-messages" class="error-messages"> 
-  </div>
-  <div id="transcript-box">
-    <div id="message-box-left-template" class="row message-box">
-      <div id="inor8g" class="cell">
-        <div id="message-user-name" class="message-user-name">
-          User 1
-        </div>
-      </div>
-      <div id="i51w91" class="cell">
-        <div id="message-text" class="message-text">
-          <div>some message.
-            <br/>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="separator" class="row">
-    </div>
-    <div id="message-box-right-template" class="row message-box">
-      <div id="irzxav" class="cell">
-        <div id="message-text" class="message-text">
-          Some other message
-        </div>
-      </div>
-      <div id="ib403h" class="cell">
-        <div id="message-user-name" class="message-user-name">
-          User 2
-        </div>
-      </div>
-    </div>
-    <div id="notification-template" class="notification">
-      Notification
-    </div>
-    <div id="separator-2" class="row">
-    </div>
-  </div>
-</div>
-<div class="spacer"></div>
-<div class="chessboard-container">
-    <div id="myBoard" style="width: 700px"></div>
-    <button id="resetBtn">New Game</button>
-    <button id="flipBtn">Flip Board</button>
-</div>
-
+	<div class="row">
+	    <!-- ========================= CHAT WINDOW ================== //-->
+	    <div class="chat-container">
+		<div class="row">
+		    <div id="iobrqj" class="cell">
+			<div id="room-name">Chat</div>
+		    </div>
+		</div>
+		<div class="row">
+		    <div class="cell">
+			<form class="form">
+			    <div class="form-group">
+			    </div>
+			    <div class="form-group">
+			    </div>
+			    <div class="form-group">
+				<label class="label">Message</label>
+			    </div>
+			    <div class="form-group">
+				<textarea id="text-input" class="textarea"></textarea>
+				<button type="button" id="send-button" onclick="sendMessage()" class="button">Send a message</button>
+			    </div>
+			</form>
+		    </div>
+		</div>
+		<div id="error-messages" class="error-messages"> 
+		</div>
+		<div id="transcript-box">
+		    <div id="message-box-left-template" class="row message-box">
+			<div id="inor8g" class="cell">
+			    <div id="message-user-name" class="message-user-name">
+				User 1
+			    </div>
+			</div>
+			<div id="i51w91" class="cell">
+			    <div id="message-text" class="message-text">
+				<div>some message.
+				    <br/>
+				</div>
+			    </div>
+			</div>
+		    </div>
+		    <div id="separator" class="row">
+		    </div>
+		    <div id="message-box-right-template" class="row message-box">
+			<div id="irzxav" class="cell">
+			    <div id="message-text" class="message-text">
+				Some other message
+			    </div>
+			</div>
+			<div id="ib403h" class="cell">
+			    <div id="message-user-name" class="message-user-name">
+				User 2
+			    </div>
+			</div>
+		    </div>
+		    <div id="notification-template" class="notification">
+			Notification
+		    </div>
+		    <div id="separator-2" class="row">
+		    </div>
+		</div>
+	    </div>
+	    <div class="horizontal-spacer"></div>
+	    <!-- ========================= CHESS BOARD ================== //-->
+	    <div class="chessboard-container">
+		<div id="myBoard" style="width: 700px"></div>
+		<button id="resetBtn">New Game</button>
+		<button id="flipBtn">Flip Board</button>
+	    </div>
+	    <div class="horizontal-spacer"></div>
+	    <!-- ========================= VIDEO CHAT WINDOW ================== //-->
+	    <div id="video-container-list" class="video-container-list">
+		<div id="video-container-local" class="popup">
+		    <div class="video-box-local">
+			<div id="video-user-name-local" style="display: none" class="video-user-name-local popup-header"></div>
+			<video id="localVideo" playsinline autoplay muted height="300px" width="400px"></video>
+		    </div>
+		    <div class="vertical-spacer"></div>
+		</div>
+		<div id="video-container-remote-template" class="popup" style="display: none">
+		    <div id="video-box-remote" class="video-box-remote">
+			<div id="video-user-name" class="video-user-name-remote popup-header"></div>
+			<video id="remoteVideo" playsinline autoplay height="300px" width="400px"></video>
+		    </div>
+		    <div class="vertical-spacer"></div>
+		</div>
+	    </div>
 </div>
     </body>
 
 <script>
-
+ 'use strict';
 
  function onDrop (source, target, piece, newPos, oldPos, orientation) {
-     newFen = Chessboard.objToFen(newPos);
-     oldFen = Chessboard.objToFen(oldPos);
+     var newFen = Chessboard.objToFen(newPos);
+     var oldFen = Chessboard.objToFen(oldPos);
      console.log('Source: ' + source);
      console.log('Target: ' + target);
      console.log('Piece: ' + piece);
@@ -122,7 +143,7 @@
         
  var board = Chessboard('myBoard', config);
 
- resetBtn = document.getElementById("resetBtn");
+ var resetBtn = document.getElementById("resetBtn");
  resetBtn.addEventListener("click", function (event) {
      console.log("reset board");
      board.position('start');
@@ -132,7 +153,7 @@
      
  });
 
- flipBtn = document.getElementById("flipBtn");
+ var flipBtn = document.getElementById("flipBtn");
  flipBtn.addEventListener("click", function (event) {
      board.flip();
  });
@@ -185,8 +206,7 @@
  
  // user ID
  var userIDchat;
- var userIDchess;
-
+ 
  function formatDate (dateStr) {
      var date = new Date(dateStr);
      var days = ["Mon", "Tue", "Wed", "Thu", "Fr", "Sat", "Sun"];
@@ -240,7 +260,7 @@
      transcript.prepend(notification);
  };
 
- // The signalling server should be running at port 9000 on the same host
+ // The signaling server should be running at port 9000 on the same host
  // that serves the web page.
  var host = window.location.hostname;
  const wsChat = new WebSocket("wss://" + host + ":9000");
@@ -267,15 +287,15 @@
      } catch (e) {
 	 console.log(`Error ${e}`);
      }
-     console.log("Recieved " + JSON.stringify(msg));
+     console.log("Received " + JSON.stringify(msg));
      switch(msg.type) {
 	 case "message":
 	     addMessage(msg);
-	     console.log("Adding message " + msg);
+	     console.log("Received message ", msg);
 	     break;
 	 case "notification":
 	     addNotification(msg);
-	     console.log("Adding notification " + msg);
+	     console.log("Received notification ", msg);
 	     break;
 	 case "transcript":
 	     // set user id (global variable)
@@ -283,7 +303,7 @@
 	     console.log("My user ID is " + userIDchat);  
 	     const transcript = msg.data;
 	     for(var m of transcript) {
-		 console.log("Adding message " + m);
+		 console.log("Adding message ", m);
 		 addMessage(m);
 	     }
 	     break;
@@ -320,6 +340,8 @@
 <script>
 "use strict";
 
+ var userIDchess;
+ 
  const wsChess = new WebSocket("wss://" + host + ":9000");
 
  const chessRoom = chatRoom+"-chess"
@@ -333,7 +355,7 @@
      wsChess.send(JSON.stringify(loginMsg));
  });
 
- wsChat.addEventListener("error", function (event) {
+ wsChess.addEventListener("error", function (event) {
      var error = document.getElementById("error-messages");
      error.innerHTML = `Could not connect to websocket`;
  });
@@ -345,7 +367,7 @@
      } catch (e) {
 	 console.log(`Error ${e}`);
      }
-     console.log("Recieved " + JSON.stringify(msg));
+     console.log("Received " + JSON.stringify(msg));
      switch(msg.type) {
 	 case "message":
 	     var fen = msg.data;
@@ -394,26 +416,370 @@
  }
 
 
- window.addEventListener("beforeunload", function(event){
-     // Tell the other users that you are leaving the chat by closing the browser window.
-     var msg = {
-	 id: userIDchat,
-	 user: userName,
-	 room: chatRoom,
-	 type: "leave"
-     };
-     wsChat.send(JSON.stringify(msg));
+</script>
 
-     // Tell the other users that you are leaving the game
-     var msg = {
-	 id: userIDchess,
-	 user: userName,
-	 room: chessRoom,
-	 type: "leave"
+<script>
+ 'use strict';
+
+ console.log("[RTC] script");
+
+ /*
+    Explanations about the signaling in WebRTC can be found at
+      https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling
+ */
+ 
+ var userIDrtc;
+ // holds active RTCPeerConnections to all remote peers, the keys
+ // are the user names of the remote peers
+ var peerConnections = {};
+ // <video> tags for each remote peer
+ var remoteVideos = {};
+ // and their containers
+ var remoteVideoContainers = {}
+ const rtcRoom = chatRoom+"-rtc";
+ 
+ const wsRTC = new WebSocket("wss://" + host + ":9000");
+
+ var localVideo = document.getElementById("localVideo");
+
+ // template for remote video box, for every remote user a copy of this
+ // window is added
+ var videoContainerTemplate = document.getElementById("video-container-remote-template");
+ 
+ // ask user for permission to use the webcam and display my own video stream
+ navigator.mediaDevices.getUserMedia({
+     audio: true,
+     video: true,
+ }).then(stream => {
+     // Display your local video in #localVideo element
+     localVideo.srcObject = stream;
+     // Add your stream to be sent to the conneting peer
+     console.log("[RTC] added local stream : ", stream);
+     // add local stream to all
+     for (var remoteUser in peerConnections) {
+	 peerConnections[remoteUser].addStream(stream);
+     }
+     var videoUserName = document.getElementById("video-user-name-local");
+     videoUserName.innerHTML = userName;
+     videoUserName.style.display = "block";
+     
+ }).catch(err => {
+     var error = document.getElementById("error-messages");
+     error.innerHTML = `[RTC] Local video not available. You have to allow access to the camera.`;
+     console.log("ERROR:" + err);
+ });
+ 
+ wsRTC.addEventListener('open', function (event) {
+     const loginMsg = {
+	 type : "join",
+	 room : rtcRoom,
+	 user : userName
      };
-     wsChess.send(JSON.stringify(msg));
- }, false);
+     wsRTC.send(JSON.stringify(loginMsg));
+ });
+
+ wsRTC.addEventListener("error", function (event) {
+     var error = document.getElementById("error-messages");
+     error.innerHTML = `Could not connect to websocket`;
+ });
+
+ // The STUN server has to run on the same host.
+ const configuration = {
+     iceServers: [{
+	 urls: "stun:" + host + ":3478" 
+     }]
+ };
+ 
+ function addRemoteCaller(remoteUser) {
+     console.log("addRemoteCaller " + remoteUser);
+     // A remote user has requested to join the conversion so
+     // we create a video window for him and initiate a peer connection.
+
+     var videoContainer = remoteVideoContainers[remoteUser];
+     if (videoContainer === undefined) {
+	 videoContainer = videoContainerTemplate.cloneNode(true);
+	 videoContainer.style.display = "block";
+	 videoContainer.querySelector("#video-user-name").innerHTML = remoteUser;
+	 // save handle to video
+	 remoteVideoContainers[remoteUser] = videoContainer;
+	 remoteVideos[remoteUser] = videoContainer.querySelector("#remoteVideo");
+	 // add video to the list
+	 var videoContainerList = document.getElementById("video-container-list");
+	 videoContainerList.append(videoContainer);
+     }
+     // initiate new peer connection
+     var pc = new RTCPeerConnection(configuration);
+
+     console.log("[RTC] initiate connection to remote user " + remoteUser);
+     // When a remote stream arrives display it in the #remoteVideo element
+     pc.ontrack = event => {
+	 console.log("[RTC] remote stream added, streams = ", event.streams);
+	 remoteVideos[remoteUser].srcObject = event.streams[0];
+	 //remoteVideos[remoteUser].play();
+     };
+
+     // delivery of ICE messages to other peers
+     pc.onicecandidate = event => {
+	 if (event.candidate) {
+	     // send the candidate to the remote peer
+	     console.log("[RTC] send ICE candidate  " + event.candidate);
+	     sendMessageICE(event.candidate);
+	 } else {
+	     // All ICE candidates have been sent
+	     console.log("[RTC] end of ICE negotiation");
+	 }
+     };
+
+     pc.onnegotiationneeded = () => {
+	 console.log("[RTC] negotiation needed");
+	 pc.createOffer()
+	   .then( desc => {
+	     return pc.setLocalDescription(desc);
+	 })
+	   .then( () => {
+	       // send the offer to the remote peer through the signaling server
+	       console.log("[RTC] send offer to remote peer");
+	       sendMessageSDP(pc.localDescription);
+	   })
+	   .catch( (err) => {
+	       console.log("[RTC] error when creating offer : " + err);
+	   });
+     };
+
+     pc.onsignalingstatechange = (event) => {
+	 console.log("[RTC] signaling state changed to " + pc.signalingState);
+     };
+
+     pc.onconnectionstatechange = (event) => {
+	 console.log("[RTC] connection state changed to " + pc.connectionState);
+	 switch(pc.connectionState) {
+	     case "connected":
+		 // The connection has become fully connected
+		 break;
+	     case "disconnected":
+	     case "failed":
+		 // One or more transports has terminated unexpectedly or in an error
+		 break;
+	     case "closed":
+		 // The connection has been closed
+		 break;
+	 }	 
+     };
+
+
+     peerConnections[remoteUser] = pc
+     // attach local video stream to peer connection
+
+     var stream = localVideo.srcObject;
+     console.log("localVide.srcObject = " + stream);
+     if (stream) {
+	 pc.addStream(stream);
+     }
+     return pc;
+ }
+
+ function handleIceMessage(remoteUser, ice) {
+     var pc = peerConnections[remoteUser];
+     if (pc === undefined) {
+	 // connection has to be established first by an SDP exchange
+	 console.log("peer connection for remote user " + remoteUser + " is still undefined");
+	 return;
+     }
+     console.log("[RTC] handleIceMessage from user " + remoteUser + " pc= ", pc, " ice= ", ice);
+     console.log("[RTC] pc.signalingState = " + pc.signalingState);
+
+     var iceCandidate = new RTCIceCandidate(ice);
+     pc.addIceCandidate(iceCandidate)
+       .then( () => {
+	   console.log("[RTC] added ice candidate" + " pc.signalingState = " + pc.signalingState);
+       })
+       .catch( e => {
+	   console.log("[RTC] error during addIceCandidate: ", e);
+	   console.log("ice= ", ice);
+       });
+ }
+
+ function handleSdpMessage(remoteUser, sdp) {
+     var pc = peerConnections[remoteUser];
+     if (pc === undefined) {
+	 console.log("Received call from " + remoteUser);
+	 pc = addRemoteCaller(remoteUser);
+     }
+     console.log("[RTC] handleSdpMessage from user " + remoteUser + " pc= ", pc, " sdp= ", sdp);
+     console.log("[RTC] pc.signalingState = " + pc.signalingState);
+     var sessionDescr = new RTCSessionDescription(sdp);
+     pc.setRemoteDescription(sessionDescr)
+       .then( () => {
+	   return pc.createAnswer();
+	   })
+       .then( answer => {
+	   return pc.setLocalDescription(answer);
+       })
+       .then( () => {
+	   sendMessageSDP(pc.localDescription);
+       })
+       .catch( (err) => {
+	   console.log("[RTC] error when receiving answer : " + err);
+       });
+ }
+ 
+ function removeRemoteCaller(remoteUser) {
+     var pc = peerConnections[remoteUser];
+     if (pc !== undefined) {
+	 pc.close();
+	 delete peerConnections[remoteUser];
+     }
+     var videoContainer = remoteVideoContainers[remoteUser];
+     if (videoContainer !== undefined) {
+	 videoContainer.remove();
+	 delete remoteVideoContainers[remoteUser];
+     }
+ }
+ 
+ function sendMessageICE(ice) {
+     var msg = {
+	 id      : userIDrtc,
+	 room    : rtcRoom,
+	 user    : userName,
+	 type    : "message",
+	 data    : { ice: ice }
+     };
+     console.log("[RTC] send ICE message ", ice);
+     wsRTC.send(JSON.stringify(msg));
+ }
+
+ function sendMessageSDP(sdp) {
+     var msg = {
+	 id   : userIDrtc,
+	 room : rtcRoom,
+	 user : userName,
+	 type : "message",
+	 data : { sdp: sdp}
+     };
+     console.log("[RTC] send SDP message ", sdp);
+     wsRTC.send(JSON.stringify(msg));
+ }
 
  
+ wsRTC.addEventListener('message', function (event) {
+     try {
+	 var msg = JSON.parse(event.data);
+     } catch (e) {
+	 console.log(`Error ${e}`);
+     }
+     console.log("Received ", msg);
+     if ((msg.user !== undefined) && (msg.user === userName)) {
+	 console.log("[RTC] Ignore my own messages.");
+	 return;
+     } else {
+	 var remoteUser = msg.user;
+     }
+     switch(msg.type) {
+	 case "message":
+	     console.log("[RTC] received message ", msg);
+	     if (msg.data === undefined) break;
+	     var rtcType = msg.rtcType;
+	     var ice = msg.data.ice
+	     if (ice) {
+		 handleIceMessage(remoteUser, ice);
+		 break;
+	     }
+	     var sdp = msg.data.sdp
+	     if (sdp) {
+		 handleSdpMessage(remoteUser, sdp);
+		 break;
+	     }
+	     break;
+	 case "notification":
+	     console.log("[RTC] received notification ", msg);
+	     switch (msg.action) {
+		 case "join":
+		     // someone wants to initiate a call with me
+		     addRemoteCaller(remoteUser);
+		     break;
+		 case "leave":
+		     // someone is leaving the conversation
+		     removeRemoteCaller(remoteUser);
+		     break;
+		 default:
+		     console.log("Unhandled notification.action = " + msg.action);
+	     }
+	     break;
+	 case "transcript":
+	     // set user id (global variable)
+	     userIDrtc = msg.id;
+	     console.log("[RTC] My user ID is " + userIDrtc);	     
+	     break;
+	 case "leave":
+	     console.log("[RTC] remote peer left, restart ICE");
+	     removeRemoteCaller(remoteUser);
+	     break;
+	 case "error":
+	     var error = document.getElementById("error-messages");
+	     error.innerHTML = `An error occurred (RTC): ${msg.data}`;
+	     break;
+	 default:
+	     console.log(`[RTC] Unknown message type ${msg.type}`);
+     }
+ });
+
+
+ function debugInfo() {
+     console.log("=== DEBUG INFO: ===");
+     console.log("  peer connections ");
+     for (var remoteUser in peerConnections) {
+	 console.log("peerConnections[" + remoteUser + "]= ", peerConnections[remoteUser]);
+     }
+     console.log("  media streams ");
+     console.log("localVideo.srcObject = ", localVideo.srcObject);
+     for (var remoteUser in peerConnections) {
+	 console.log("remoteVideos[" + remoteUser + "].srcObject= ", remoteVideos[remoteUser].srcObject);
+	 console.log("remoteVideos[" + remoteUser + "].paused= ", remoteVideos[remoteUser].paused);
+     }
+ }
+</script>
+
+<script>
+ 'use strict';
+
+ window.addEventListener("beforeunload", function(event){
+     // Tell the other users that you are leaving the chat by closing the browser window.
+     if (userIDchat) {
+	 var msg = {
+	     id: userIDchat,
+	     user: userName,
+	     room: chatRoom,
+	     type: "leave"
+	 };
+	 wsChat.send(JSON.stringify(msg));
+     }
+     if (userIDchess) {
+	 // Tell the other users that you are leaving the game
+	 var msg = {
+	     id: userIDchess,
+	     user: userName,
+	     room: chessRoom,
+	     type: "leave"
+	 };
+	 wsChess.send(JSON.stringify(msg));
+     }
+     // Tell the other users that you are leaving the video conference
+     // Tell the other users that you are leaving the game
+     if (userIDrtc) {
+	 var msg = {
+	     id: userIDrtc,
+	     user: userName,
+	     room: rtcRoom,
+	     type: "leave"
+	 };
+	 wsRTC.send(JSON.stringify(msg));
+	 // close all connections
+	 for (var remoteUser in peerConnections) {
+	     peerConnections[remoteUser].close();
+	     delete peerConnections[remoteUser];
+	 }
+     }
+ }, false);
+
 </script>
 </html>

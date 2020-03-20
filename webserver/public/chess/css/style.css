@@ -40,8 +40,11 @@ body {
   flex-wrap:nowrap;
   padding:10px;
 }
-.spacer {
+.horizontal-spacer {
   min-width:100px;
+}
+.vertical-spacer {
+  min-height:30px;
 }
 .cell{
   min-height:75px;
@@ -129,4 +132,26 @@ body{
   .row{
     flex-wrap:wrap;
   }
+}
+
+/*
+.video-box-remote{
+  border-radius:20px 20px 20px 20px;
+  border:solid #57dd21;
+  padding: 3px 10px 3px 10px;
+}
+
+.video-box-local{
+  border-radius:20px 20px 20px 20px;
+  border:solid #d61d1d;
+  padding: 3px 10px 3px 10px;
+}
+*/
+
+.video-user-name-local {
+  background-color: #d61d1d;
+}
+
+.video-user-name-remote {
+  background-color: #57dd21;
 }

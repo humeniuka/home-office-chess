@@ -14,7 +14,7 @@ missing required arguments!\n\
 \n\
 Usage:  %s  keyDir  port\n\
 \n\
- Starts a secure signalling server listening on the given `port` (int). The private\n\
+ Starts a secure signaling server listening on the given `port` (int). The private\n\
  key and certificate are taken from the directory `keyDir` (path).\n\
 \n\
 Example:\n\
@@ -66,6 +66,9 @@ let rooms = {};
 const sendTo = (connection, message) => {
     var msg = JSON.stringify(message);
     connection.send(msg);
+    if (connection.readyState === WebSocket.OPEN) {
+	connection.send(msg);
+    }
 }
 
 // broadcast a message to all connected users in the same room
@@ -73,7 +76,10 @@ const sendToAll = (message) => {
     var room = rooms[message.room];
     var msg = JSON.stringify(message);
     for (var userID in room.connections) {
-	room.connections[userID].send(msg);
+	var connection = room.connections[userID];
+	if (connection.readyState === WebSocket.OPEN) {
+	    connection.send(msg);
+	}
     }
 };
 
@@ -111,6 +117,8 @@ wss.on("connection", ws => {
 		    {
 			type: "notification",
 			room: msg.room,
+			user: msg.user,
+			action : "join",
 			data: `${msg.user} joined the conversation.`
 		    });
 		// send new user the transcript of the conversation
@@ -142,6 +150,8 @@ wss.on("connection", ws => {
 		    {
 			type: "notification",
 			room: msg.room,
+			user: msg.user,
+			action: "leave",
 			data: `${msg.user} left the conversation.`
 		    });
 		delete room.connections[msg.id];
@@ -195,7 +205,7 @@ wss.on("connection", ws => {
 // start our server
 try {
     httpsServer.listen(port, () => {
-	console.log(`Signalling server running on port: ${port}`);
+	console.log(`Signaling server running on port: ${port}`);
     });
 } catch (err) {
     console.log("ERROR: " + err);

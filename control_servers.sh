@@ -9,7 +9,7 @@
 
 # directory with private key and certificate
 keyDir="/etc/letsencrypt/live/humeniuk.xyz"
-# port where signalling server listens
+# port where signaling server listens
 portSignal=9000
 # port where secure web-server for static pages listens
 portWeb=8085
@@ -25,11 +25,11 @@ function start_servers () {
     nohup ./stunserver/stunserver --primaryport $portSTUN &> run/stunserver.out &
     echo $! > run/stunserver.pid
     
-    # start signalling server which transfers messages between
+    # start signaling server which transfers messages between
     # two players
-    nohup ./signalling-server/signalling_server.js $keyDir $portSignal &> run/signalling_server.out &
+    nohup ./signaling-server/signaling_server.js $keyDir $portSignal &> run/signaling_server.out &
     # save process ID
-    echo $! > run/signalling_server.pid
+    echo $! > run/signaling_server.pid
     
     # start webserver which serves the html, css and js files
     nohup ./webserver/webserver.js $keyDir $portWeb &> run/webserver.out &
@@ -54,7 +54,7 @@ EOF
 function stop_servers () {
     echo "=== Start Servers: ==="
     # stop all servers
-    for server in "webserver" "signalling_server" "stunserver"
+    for server in "webserver" "signaling_server" "stunserver"
     do
 	if [ -f run/${server}.pid ]
 	then
@@ -71,7 +71,7 @@ function stop_servers () {
 
 function status_servers () {
     echo "=== Status of Servers: ==="
-    for server in "webserver" "signalling_server" "stunserver"
+    for server in "webserver" "signaling_server" "stunserver"
     do
 	if [ -f run/${server}.pid ]
 	then
@@ -87,7 +87,7 @@ function statusByPID () {
     pid=$1
     name=$2
     # check if PIDs in run/server_nam
-    procName=$(ps ax | grep "$pid pts"  | grep -v grep | awk '{print $5,$6}')
+    procName=$(ps ax | grep "^\s*$pid "  | grep -v grep | awk '{print $5,$6}')
     if [[ $procName =~ $name ]]
     then
 	echo "${name} is running with PID $pid"
@@ -102,7 +102,7 @@ function killByPID () {
     # Kill the process with PID if its name matches
     
     # name of the program running with this PID
-    procName=$(ps ax | grep "$pid pts"  | grep -v grep | awk '{print $5,$6}')
+    procName=$(ps ax | grep "^\s*$pid "  | grep -v grep | awk '{print $5,$6}')
     if [[ $procName =~ $name ]]
     then
 	echo "killing $name with PID $pid"
@@ -132,7 +132,7 @@ case "$1" in
 	echo ""
 	echo "   Starts, stops or restarts the servers needed for the online-chess app:"
 	echo "     - secure web server          at port $portWeb"
-	echo "     - secure signalling server   at port $portSignal"
+	echo "     - secure signaling server    at port $portSignal"
 	echo "     - STUN server                at port $portSTUN"
 	echo ""
 	exit 1

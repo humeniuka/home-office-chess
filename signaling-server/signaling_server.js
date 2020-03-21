@@ -6,6 +6,10 @@ const https = require("https");
 const WebSocket = require("ws");
 const uuid = require("uuid");
 
+const ROOM_LIVETIME_HRS   = 24.0;
+const STATS_INTERVAL_MINS = 1.0; 
+const CLEAN_INTERVAL_MINS = 60.0;
+
 const args = process.argv.slice(2);
 if (args.length < 2) {
     var prog = path.basename(process.argv[1]);
@@ -48,6 +52,7 @@ const wss = new WebSocket.Server(
 
 class Room {
     constructor(name) {
+	this.dateCreated = Date();
 	// name of the chat room
 	this.name = name;
 	// map user IDs to names of users
@@ -203,6 +208,47 @@ wss.on("connection", ws => {
     });
 });
 
+function printStats() {
+    var tag = "[Stats " + Date() + "] ";
+    function log(txt) {
+	// additional argument are appended to string
+	for (var i=1; i<arguments.length; i++) {
+	    txt += "  " + arguments[i];
+	}
+	console.log(tag + txt);
+    }
+    log("number of clients of webserver: ", wss.clients.length);
+    log("Number of rooms: ", Object.keys(rooms).length);
+
+    log(" == Rooms: ==");
+    for (var roomName in rooms) {
+	var room = rooms[roomName];
+	log(" name: ", room.name);
+	log("   created on: ", room.dateCreated.toString());
+	log("   number of users: ", Object.keys(room.users).length);
+	log("   users: ", Object.values(room.users));
+    }    
+}
+
+function cleanUp() {
+    // remove empty rooms that are too old
+    for (var roomName in rooms) {
+	var room = rooms[roomName];
+
+	var now = Date.now();
+	var created = Date.parse(room.dateCreated);
+	if ((now - create) > 1000.0*60.0*60.0*ROOM_LIVETIME_HRS) {
+	    console.log("[Cleanup] remove room ", roomName);
+	    delete rooms[roomName];
+	}
+    }
+}
+
+// print statistics every few minute
+const intervalStats = setInterval(printStats, STATS_INTERVAL_MINS*60*1000);
+
+// clean-up dead rooms
+const intervalClean = setInterval(cleanUp, CLEAN_INTERVAL_MINS*60*1000);
 
 // start our server
 try {

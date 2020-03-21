@@ -202,3 +202,41 @@ body{
     font-style : italic;
 }
 
+/* Animation of waiting sign */
+
+.wait-for-others {
+    flex-direction: column;
+    justify-content: center;
+    padding: 5px 5px;
+    margin: auto;
+}
+
+.waiting-sign {
+  position: relative;
+  margin: auto; 
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.waiting-text {
+    padding: 30px;
+    font-size: 15px;
+}

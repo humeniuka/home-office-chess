@@ -5,17 +5,18 @@
 	<title>Home-Office</title>
 	<link rel="stylesheet" href="./css/style.css">
 	<script src="./jquery.js"></script>
-	<script>
-         $('head').append('<link rel="stylesheet" type="text/css" href="./chessboardjs/css/chessboard-1.0.0.css">');
-	 $('head').append('<link rel="stylesheet" type="text/css" href="./popup/css/popup.css">');
-	</script>
 	<script src="./chessboardjs/js/chessboard-1.0.0.js"></script>
+	<script src="./goboardjs/js/goboard-1.0.0.js"></script>
 	<script src="./popup/js/popup.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="./goboardjs/css/goboard-1.0.0.css">
+	<link rel="stylesheet" type="text/css" href="./chessboardjs/css/chessboard-1.0.0.css">
+	<link rel="stylesheet" type="text/css" href="./popup/css/popup.css">
     </head>
     <body>
 	<div class="usage">
 	    <div class="usage-title">How does it work?</div>
-	    <div class="usage-text">Anyone who opens this page can move the pieces on the board and write messages to the other players. If you want to play with someone, send them the link to this page. If a room is full, you can create a new one by changing <tt>?room=...</tt> in the URL.</div>
+	    <div class="usage-text">Anyone who opens this page can move the pieces on the board and write messages to the other players. If you want to play with someone, send them the link to this page. If a room is full, you can create a new one by changing <tt>room=...</tt> in the URL.</div>
 	</div>
 	<div class="row">
 	    <!-- ========================= CHAT WINDOW ================== //-->
@@ -104,6 +105,10 @@
 		    </div>
 		    <div class="vertical-spacer"></div>
 		</div>
+		<div id="wait-for-others" class="wait-for-others">
+		    <div id="waiting-sign" class="waiting-sign"></div>
+		    <div id="waiting-text" class="waiting-text">Waiting for other players to join ...</div>
+		</div>
 	    </div>
 </div>
     </body>
@@ -111,16 +116,29 @@
 <script>
  'use strict';
 
+ var urlParams = new URLSearchParams(window.location.search);
+ var gameType = urlParams.get("game");
+
+ // Which game should we play, chess or Go? It depends on the parameter game= in the query part of the URL
+ if (gameType === "go") {
+     Chessboard = Goboard;
+ }
+ 
  function onDrop (source, target, piece, newPos, oldPos, orientation) {
      var newFen = Chessboard.objToFen(newPos);
      var oldFen = Chessboard.objToFen(oldPos);
-     console.log('Source: ' + source);
-     console.log('Target: ' + target);
-     console.log('Piece: ' + piece);
-     console.log('New position: ' + newFen);
-     console.log('Old position: ' + oldFen);
-     console.log('Orientation: ' + orientation);
-     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+     console.log('[Chess] Source: ' + source);
+     console.log('[Chess] Target: ' + target);
+     console.log('[Chess] Piece: ' + piece);
+     console.log('[Chess] New position: ' + newFen);
+     console.log('[Chess] Old position: ' + oldFen);
+     console.log('[Chess] Orientation: ' + orientation);
+     console.log('[Chess] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+
+     if (newFen === oldFen) {
+	 console.log("[Chess] no move");
+	 return;
+     }
 
      sendFen(newFen);
 
@@ -142,6 +160,7 @@
      draggable: true,
      sparePieces: true,
      position: 'start',
+     dropOffBoard: 'trash',
      onDrop: onDrop
  }  
         
@@ -149,12 +168,14 @@
 
  var resetBtn = document.getElementById("resetBtn");
  resetBtn.addEventListener("click", function (event) {
-     console.log("reset board");
-     board.position('start');
-     board.orientation(config.orientation);
+     var r = window.confirm("Start a new game? Are you sure?");
+     if (r === true) {
+	 console.log("reset board");
+	 board.position('start');
+	 board.orientation(config.orientation);
 
-     sendFen(board.fen());
-     
+	 sendFen(board.fen());
+     }
  });
 
  var flipBtn = document.getElementById("flipBtn");
@@ -193,13 +214,13 @@
 
  hideTemplates();
 
- // find room name from the query string, i.e.
- //     'index.html?room=chat'    
- // gives chatRoom = 'char'
+ // find room name from the query string
  var chatRoom = "default";
- if (window.location.search.search(/\?room=/) > -1) {
-     chatRoom = window.location.search.replace(/\?room=/,"");
+ if (urlParams.has("room")) {
+     chatRoom = urlParams.get("room");
  }
+ chatRoom += "-" + gameType
+ 
  document.getElementById("room-name").innerHTML = "Room: " + chatRoom + "</br>";
  
  // determine user name
@@ -244,7 +265,10 @@
      console.log(transcript);
 
      messageBox.querySelector("#message-user-name").innerHTML = msg.user;
-     messageBox.querySelector("#message-text").innerHTML = msg.data + "<span style=\"float:right\"><i><small>(" + formatDate(msg.date) + ")</small></i></span>"; 
+     var txt = msg.data;
+     // replace links with <link> tags
+     txt = txt.replace(/(https*:\/\/[a-zA-Z0-9\-]+\.[a-zA-Z0-9\.\-]+\/\S+)/g, '<a href="$1" target="_blank">$1</a>');
+     messageBox.querySelector("#message-text").innerHTML = txt + "<span style=\"float:right\"><i><small>(" + formatDate(msg.date) + ")</small></i></span>"; 
 
      var transcript = document.getElementById("transcript-box");
      transcript.prepend(messageBox);
@@ -581,6 +605,11 @@
      if (stream) {
 	 pc.addStream(stream);
      }
+
+     // hide waiting sign
+     var waitingSign = document.getElementById("wait-for-others");
+     waitingSign.style.display = "none";
+     
      return pc;
  }
 
@@ -639,6 +668,11 @@
      if (videoContainer !== undefined) {
 	 videoContainer.remove();
 	 delete remoteVideoContainers[remoteUser];
+     }
+     if (Object.keys(peerConnections).length === 0) {
+	 // show waiting sign
+	 var waitingSign = document.getElementById("wait-for-others");
+	 waitingSign.style.display = "block";
      }
  }
  

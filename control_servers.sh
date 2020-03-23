@@ -16,29 +16,58 @@ portWeb=8085
 # port where STUN server listens
 portSTUN=3478
 
-function start_servers () {
+#
+# After making some changes to this script such as replacing relative
+# paths by absolute paths etc. it could be placed into /etc/init.d
+# to start the servers automatically if the machine is rebooted.
+#
+#   sudo cp control_servers.sh /etc/init.d/home-office-server
+#   sudo update-rc.d home-office-server defaults
+#
+
+### BEGIN INIT INFO
+# Provides:          home-office-server
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Should-Start:      $network $time
+# Should-Stop:       $network $time
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start and stop the STUN server, signaling server and web server
+#                    needed for the Home-Office-Chess application
+# Description:       The Home-Office-Chess application relies on three servers:
+#                    "stunserver", "webserver.js" and "signaling_server.js", which
+#                    can be controled with this script.
+#
+### END INIT INFO
+
+
+start_servers () {
     echo "=== Start Servers: ==="
     # PIDs and output is stored in subfolder ./run
     mkdir -p run
 
     # start STUN server
     nohup ./stunserver/stunserver --primaryport $portSTUN &> run/stunserver.out &
-    echo $! > run/stunserver.pid
-    
+    # save process ID so that we can later kill the server
+    pid=$!
+    echo $pid > run/stunserver.pid
+
     # start signaling server which transfers messages between
     # two players
     nohup ./signaling-server/signaling_server.js $keyDir $portSignal &> run/signaling_server.out &
-    # save process ID
-    echo $! > run/signaling_server.pid
-    
+    # save process ID so that we can later kill the server
+    pid=$!
+    echo $pid > run/signaling_server.pid
+
     # start webserver which serves the html, css and js files
     nohup ./webserver/webserver.js $keyDir $portWeb &> run/webserver.out &
     # save process ID so that we can later kill the server
-    echo $! > run/webserver.pid
-    
+    pid=$!
+    echo $pid > run/webserver.pid
 
     cat << EOF
-     Go to 
+     Go to
 
        https://${HOSTNAME}:8085/games/play.html?game=chess&room=home-office
 
@@ -46,13 +75,13 @@ function start_servers () {
 
      'home-office' can be replaced by any string so that different rooms
      can be created for playing. Anyone who knows the link can move the pieces
-     and write messages. 
+     and write messages.
 EOF
 }
 
 
-function stop_servers () {
-    echo "=== Start Servers: ==="
+stop_servers () {
+    echo "=== Stop Servers: ==="
     # stop all servers
     for server in "webserver" "signaling_server" "stunserver"
     do
@@ -69,7 +98,7 @@ function stop_servers () {
     done
 }
 
-function status_servers () {
+status_servers () {
     echo "=== Status of Servers: ==="
     for server in "webserver" "signaling_server" "stunserver"
     do
@@ -83,30 +112,36 @@ function status_servers () {
     done
 }
 
-function statusByPID () {
+statusByPID () {
     pid=$1
     name=$2
     # check if PIDs in run/server_nam
     procName=$(ps ax | grep "^\s*$pid "  | grep -v grep | awk '{print $5,$6}')
-    if [[ $procName =~ $name ]]
+    # In bash we could also match a pattern with the following expression
+    #if [[ $procName =~ $name ]]
+    match=$(echo $procName | grep $name)
+    if [ ! -z "$match" ]
     then
-	echo "${name} is running with PID $pid"
+      echo "${name} is running with PID $pid"
     else
-	echo "${name} is NOT running with PID $pid, it's probably DOWN, see run/${name}.out"
+      echo "${name} is NOT running with PID $pid, it's probably DOWN, see run/${name}.out"
     fi
 }
 
-function killByPID () {
+killByPID () {
     pid=$1
     name=$2
     # Kill the process with PID if its name matches
-    
+
     # name of the program running with this PID
     procName=$(ps ax | grep "^\s*$pid "  | grep -v grep | awk '{print $5,$6}')
-    if [[ $procName =~ $name ]]
+    # pattern matching in bash
+    #if [[ $procName =~ $name ]]
+    match=$(echo $procName | grep $name)
+    if [ ! -z "$match" ]
     then
-	echo "killing $name with PID $pid"
-	kill -9 $pid
+      echo "killing $name with PID $pid"
+      kill -9 $pid
     fi
 }
 
@@ -118,7 +153,7 @@ case "$1" in
     stop)
 	stop_servers
 	;;
-    restart)
+    restart|reload|force-reload)
 	stop_servers
 	start_servers
 	status_servers
@@ -137,7 +172,5 @@ case "$1" in
 	echo ""
 	exit 1
 esac
-	
+
 exit 0
-
-

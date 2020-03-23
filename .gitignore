@@ -5,3 +5,4 @@ stunserver/
 *\#*\#
 # ignore temporary run files
 **/run/
+nohup.out

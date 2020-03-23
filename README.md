@@ -1,4 +1,5 @@
 # Home-Office Chess
+You can't play chess with your colleagues at work anymore because of the corona virus lock-down? "Work" from home!
 
 Home-Office Chess is a web application for video chatting and playing chess or Go online.
 
@@ -75,4 +76,4 @@ Running the application:
    Of course, before sending the link to others you should replace `your-host-name` with the hostname of your machine
    for which the SSL certificate has been issued.
 
-   
+

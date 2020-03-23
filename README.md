@@ -8,7 +8,7 @@ Requirements:
 + __STUN__ server for establishing WebRTC connection from
   http://www.stunprotocol.org/stun
 + __chessboardjs__ (from http://chessboardjs.com). You don't have to download this package since it is already contained in `./webserver/public/games/chessboardjs`
-+ __jQuery__ . A copy of the current is included in `./webserver/public/games/jquery.js`.
++ __jQuery__ . A current copy is included in `./webserver/public/games/jquery.js`.
 
 Manual Installation:
 =====================

@@ -6,9 +6,13 @@ const https = require("https");
 const WebSocket = require("ws");
 const uuid = require("uuid");
 
-const ROOM_LIVETIME_HRS   = 24.0;
+// remove rooms after 1 week
+const ROOM_MAX_LIVETIME_HRS = 7*24.0;
+// remove rooms if they have not been used for 2 days
+const ROOM_INACTIVE_LIVETIME_HRS = 2*24.0;
+
 const STATS_INTERVAL_MINS = 1.0; 
-const CLEAN_INTERVAL_MINS = 60.0;
+const CLEAN_INTERVAL_MINS = 10.0;
 
 const args = process.argv.slice(2);
 if (args.length < 2) {
@@ -53,6 +57,7 @@ const wss = new WebSocket.Server(
 class Room {
     constructor(name) {
 	this.dateCreated = Date();
+	this.dateLastAccess = Date();
 	// name of the chat room
 	this.name = name;
 	// map user IDs to names of users
@@ -79,6 +84,7 @@ const sendTo = (connection, message) => {
 // broadcast a message to all connected users in the same room
 const sendToAll = (message) => {
     var room = rooms[message.room];
+    room.dateLastAccess = Date();
     var msg = JSON.stringify(message);
     for (var userID in room.connections) {
 	var connection = room.connections[userID];
@@ -147,9 +153,6 @@ wss.on("connection", ws => {
 	    //   {"type": "leave", "room": "<name of room to leave>", "user": "<real name of user>", "id": "<The user ID obtained during login>"}
 	    console.log("leave room " + msg.room);
 	    var room = rooms[msg.room];
-	    console.log("room (object) = " + room);
-	    console.log("msg.id = " + msg.id);
-	    console.log("room.connections[msg.id] = " + room.connections[msg.id]);
 	    if ((room !== undefined) && (room.connections[msg.id] !== undefined)) {
 		console.log("  send signal that user " + msg.user + " leaves to everyone");
 		sendToAll(
@@ -169,7 +172,6 @@ wss.on("connection", ws => {
 	    //   {"type": "message", "user": "<real name of user>", "id": "<The user ID obtained during login>", "data": "<The message sent to the group>"}
 	    console.log("message " + msg);
 	    console.log("Room room = " + msg.room);
-	    console.log(rooms[msg.room]);
 	    var room = rooms[msg.room];
 	    if ((room === undefined) || (room.connections[msg.id] === undefined)) {
 		sendTo(ws,
@@ -236,8 +238,12 @@ function cleanUp() {
 	var room = rooms[roomName];
 
 	var now = Date.now();
-	var created = Date.parse(room.dateCreated);
-	if ((now - create) > 1000.0*60.0*60.0*ROOM_LIVETIME_HRS) {
+	var create = Date.parse(room.dateCreated);
+	var access = Date.parse(room.dateLastAccess);
+	if (
+	    ((now - create) > 1000.0*60.0*60.0*ROOM_MAX_LIVETIME_HRS)
+		|| ((now - access) > 1000.0*60.0*60.0*ROOM_INACTIVE_LIVETIME_HRS))
+	{
 	    console.log("[Cleanup] remove room ", roomName);
 	    delete rooms[roomName];
 	}

@@ -40,11 +40,11 @@ function start_servers () {
     cat << EOF
      Go to 
 
-       https://${HOSTNAME}:8085/chess/index.html?room=chess-room-id
+       https://${HOSTNAME}:8085/games/play.html?game=chess&room=home-office
 
      to start a game.
 
-     'chess-room-id' can be replaced by any string so that different rooms
+     'home-office' can be replaced by any string so that different rooms
      can be created for playing. Anyone who knows the link can move the pieces
      and write messages. 
 EOF

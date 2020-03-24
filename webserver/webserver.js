@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/*
+  Webserver for serving static pages from folder public/
+*/
 'use strict';
 const fs = require("fs");
 const path = require("path");

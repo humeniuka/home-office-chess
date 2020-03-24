@@ -865,7 +865,7 @@
         html += '<div class="{row}">'
         for (var j = 0; j < NUM_FIELDS; j++) {
             var square = alpha[j] + row
-	    var squareType = 'square'
+	    var squareType = ''; //'square'
 	    // special dot in the corners (3 fields away from the borders)
 	    if (i === 3) {
 		if ((j === 3) || (j === NUM_FIELDS-3-1)) {
@@ -877,7 +877,8 @@
 		}
 	    }
 	    
-          html += '<div class="' + '{'+squareType+'} '+ CSS[squareColor] + ' ' +
+	    //          html += '<div class="' + '{'+squareType+'} '+ CSS[squareColor] + ' ' +
+	    html += '<div class="' + '{square} ' + '{' + squareType + '} ' + CSS[squareColor] + ' ' +
             'square-' + square + '" ' +
             'style="width:' + squareSize + 'px;height:' + squareSize + 'px;" ' +
             'id="' + squareElsIds[square] + '" ' +

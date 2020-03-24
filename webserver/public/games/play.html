@@ -43,7 +43,7 @@
 			</form>
 		    </div>
 		</div>
-		<div id="error-messages" class="error-messages"> 
+		<div id="error-messages" class="error-messages">
 		</div>
 		<div id="transcript-box" class="chat-transcript-box">
 		    <div id="message-box-left-template" class="row message-box">
@@ -123,7 +123,7 @@
  if (gameType === "go") {
      Chessboard = Goboard;
  }
- 
+
  function onDrop (source, target, piece, newPos, oldPos, orientation) {
      var newFen = Chessboard.objToFen(newPos);
      var oldFen = Chessboard.objToFen(oldPos);
@@ -155,15 +155,15 @@
      wsChat.send(JSON.stringify(msg));
 
  }
-    
+
  var config = {
      draggable: true,
      sparePieces: true,
      position: 'start',
      dropOffBoard: 'trash',
      onDrop: onDrop
- }  
-        
+ }
+
  var board = Chessboard('myBoard', config);
 
  var resetBtn = document.getElementById("resetBtn");
@@ -182,11 +182,11 @@
  flipBtn.addEventListener("click", function (event) {
      board.flip();
  });
- 
+
  function setBoardOrientation(color) {
      board.orientation(color);
  }
- 
+
  function updateBoard(fen) {
      console.log("old fen string = " + board.fen());
      console.log("new fen string = " + fen);
@@ -206,9 +206,9 @@
      // ignore notifications
      console.log("notification via wsChess: " + JSON.stringify(msg));
  }
- 
+
 </script>
-    
+
 <script>
  'use strict';
 
@@ -220,18 +220,18 @@
      chatRoom = urlParams.get("room");
  }
  chatRoom += "-" + gameType
- 
+
  document.getElementById("room-name").innerHTML = "Room: " + chatRoom + "</br>";
- 
+
  // determine user name
  var userName;
  while ((userName === undefined) || (userName === "") || (userName === null)) {
      userName = prompt("What's your name?");
  }
- 
+
  // user ID
  var userIDchat;
- 
+
  function formatDate (dateStr) {
      var date = new Date(dateStr);
      var days = ["Mon", "Tue", "Wed", "Thu", "Fr", "Sat", "Sun"];
@@ -246,7 +246,7 @@
 	 elem.style.visibility = "hidden";
      }
  }
- 
+
  const addMessage = (msg) => {
      var messageBoxTemplate;
      if (msg.room !== chatRoom) {
@@ -268,13 +268,13 @@
      var txt = msg.data;
      // replace links with <link> tags
      txt = txt.replace(/(https*:\/\/[a-zA-Z0-9\-]+\.[a-zA-Z0-9\.\-]+\/\S+)/g, '<a href="$1" target="_blank">$1</a>');
-     messageBox.querySelector("#message-text").innerHTML = txt + "<span style=\"float:right\"><i><small>(" + formatDate(msg.date) + ")</small></i></span>"; 
+     messageBox.querySelector("#message-text").innerHTML = txt + "<span style=\"float:right\"><i><small>(" + formatDate(msg.date) + ")</small></i></span>";
 
      var transcript = document.getElementById("transcript-box");
      transcript.prepend(messageBox);
  };
 
- 
+
  const addNotification = (msg) => {
      if (msg.room !== chatRoom) {
 	 return;
@@ -307,7 +307,7 @@
      var error = document.getElementById("error-messages");
      error.innerHTML += "<div class='error'>[Chat] Could not connect to websocket. Try to reload the page.</div>";
  });
-  
+
 // Listen for messages
  wsChat.addEventListener('message', function (event) {
      try {
@@ -332,7 +332,7 @@
 	     }
 	     // set user id (global variable)
 	     userIDchat = msg.id;
-	     console.log("[Chat] My user ID is " + userIDchat);  
+	     console.log("[Chat] My user ID is " + userIDchat);
 	     const transcript = msg.data;
 	     console.log("[Chat] got transcript from ongoing conversation");
 	     for(var m of transcript) {
@@ -346,10 +346,10 @@
 	     break;
 	 default:
 	     console.log(`[Chat] Unknown message type ${msg.type}`);
-     } 
+     }
      //console.log('Message from server ', event.data);
  });
- 
+
  function sendMessage() {
      var input = document.getElementById("text-input")
      var message = input.value;
@@ -371,7 +371,7 @@
 "use strict";
 
  var userIDchess;
- 
+
  const wsChess = new WebSocket("wss://" + host + ":9000");
 
  const chessRoom = chatRoom+"-chess"
@@ -389,7 +389,7 @@
      var error = document.getElementById("error-messages");
      error.innerHTML += "<div class='error'>[Chess] Could not connect to websocket.  Try to reload the page<div>";
  });
- 
+
 // Listen for messages
  wsChess.addEventListener('message', function (event) {
      try {
@@ -410,7 +410,7 @@
 	 case "transcript":
 	     // set user id (global variable)
 	     userIDchess = msg.id;
-	     console.log("My user ID is " + userIDchess);	     
+	     console.log("My user ID is " + userIDchess);
 	     const transcript = msg.data;
 	     for(var move of transcript) {
 		 var fen = move.data;
@@ -432,7 +432,7 @@
      }
      console.log('Message from server ', event.data);
  });
- 
+
  function sendFen(fen) {
      var msg = {
 	 id: userIDchess,
@@ -457,7 +457,7 @@
     Explanations about the signaling in WebRTC can be found at
       https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling
  */
- 
+
  var userIDrtc;
  // holds active RTCPeerConnections to all remote peers, the keys
  // are the user names of the remote peers
@@ -467,7 +467,7 @@
  // and their containers
  var remoteVideoContainers = {}
  const rtcRoom = chatRoom+"-rtc";
- 
+
  const wsRTC = new WebSocket("wss://" + host + ":9000");
 
  var localVideo = document.getElementById("localVideo");
@@ -475,7 +475,7 @@
  // template for remote video box, for every remote user a copy of this
  // window is added
  var videoContainerTemplate = document.getElementById("video-container-remote-template");
- 
+
  // ask user for permission to use the webcam and display my own video stream
  navigator.mediaDevices.getUserMedia({
      audio: true,
@@ -492,13 +492,13 @@
      var videoUserName = document.getElementById("video-user-name-local");
      videoUserName.innerHTML = userName;
      videoUserName.style.display = "block";
-     
+
  }).catch(err => {
      var error = document.getElementById("error-messages");
      error.innerHTML += "<div class='error'>[RTC] Local video not available. You have to allow access to the camera. Try to reload the page.</div>";
      console.log("ERROR:" + err);
  });
- 
+
  wsRTC.addEventListener('open', function (event) {
      const loginMsg = {
 	 type : "join",
@@ -516,10 +516,10 @@
  // The STUN server has to run on the same host.
  const configuration = {
      iceServers: [{
-	 urls: "stun:" + host + ":3478" 
+	 urls: "stun:" + host + ":3478"
      }]
  };
- 
+
  function addRemoteCaller(remoteUser) {
      console.log("addRemoteCaller " + remoteUser);
      // A remote user has requested to join the conversion so
@@ -553,7 +553,7 @@
 	 if (event.candidate) {
 	     // send the candidate to the remote peer
 	     console.log("[RTC] send ICE candidate  " + event.candidate);
-	     sendMessageICE(event.candidate);
+	     sendMessageICE(event.candidate, remoteUser);
 	 } else {
 	     // All ICE candidates have been sent
 	     console.log("[RTC] end of ICE negotiation");
@@ -569,7 +569,7 @@
 	   .then( () => {
 	       // send the offer to the remote peer through the signaling server
 	       console.log("[RTC] send offer to remote peer");
-	       sendMessageSDP(pc.localDescription);
+	       sendMessageSDP(pc.localDescription, remoteUser);
 	   })
 	   .catch( (err) => {
 	       console.log("[RTC] error when creating offer : " + err);
@@ -593,7 +593,7 @@
 	     case "closed":
 		 // The connection has been closed
 		 break;
-	 }	 
+	 }
      };
 
 
@@ -609,11 +609,11 @@
      // hide waiting sign
      var waitingSign = document.getElementById("wait-for-others");
      waitingSign.style.display = "none";
-     
+
      return pc;
  }
 
- function handleIceMessage(remoteUser, ice) {
+ function handleIceMessage(ice, remoteUser) {
      var pc = peerConnections[remoteUser];
      if (pc === undefined) {
 	 // connection has to be established first by an SDP exchange
@@ -634,7 +634,7 @@
        });
  }
 
- function handleSdpMessage(remoteUser, sdp) {
+ function handleSdpMessage(sdp, remoteUser) {
      var pc = peerConnections[remoteUser];
      if (pc === undefined) {
 	 console.log("Received call from " + remoteUser);
@@ -651,13 +651,13 @@
 	   return pc.setLocalDescription(answer);
        })
        .then( () => {
-	   sendMessageSDP(pc.localDescription);
+	   sendMessageSDP(pc.localDescription, remoteUser);
        })
        .catch( (err) => {
 	   console.log("[RTC] error when receiving answer : " + err);
        });
  }
- 
+
  function removeRemoteCaller(remoteUser) {
      var pc = peerConnections[remoteUser];
      if (pc !== undefined) {
@@ -675,32 +675,38 @@
 	 waitingSign.style.display = "block";
      }
  }
- 
- function sendMessageICE(ice) {
+
+ function sendMessageICE(ice, remoteUser) {
      var msg = {
-	 id      : userIDrtc,
-	 room    : rtcRoom,
-	 user    : userName,
-	 type    : "message",
-	 data    : { ice: ice }
+	 id         : userIDrtc,
+	 room       : rtcRoom,
+	 // The message is sent from `user` to the recipient `remoteUser``,
+	 // all other peers should ignore this message
+	 user       : userName,
+	 type       : "message",
+	 data       : { ice: ice,
+			remoteUser : remoteUser }
      };
      console.log("[RTC] send ICE message ", ice);
      wsRTC.send(JSON.stringify(msg));
  }
 
- function sendMessageSDP(sdp) {
+ function sendMessageSDP(sdp, remoteUser) {
      var msg = {
-	 id   : userIDrtc,
-	 room : rtcRoom,
-	 user : userName,
-	 type : "message",
-	 data : { sdp: sdp}
+	 id         : userIDrtc,
+	 room       : rtcRoom,
+	 // The message is sent from `user` to the recipient `remoteUser``,
+	 // all other peers should ignore this message
+	 user       : userName,
+	 type       : "message",
+	 data       : { sdp: sdp,
+	 		remoteUser : remoteUser }
      };
      console.log("[RTC] send SDP message ", sdp);
      wsRTC.send(JSON.stringify(msg));
  }
 
- 
+
  wsRTC.addEventListener('message', function (event) {
      try {
 	 var msg = JSON.parse(event.data);
@@ -718,15 +724,28 @@
 	 case "message":
 	     console.log("[RTC] received message ", msg);
 	     if (msg.data === undefined) break;
+	     	     
 	     var rtcType = msg.rtcType;
 	     var ice = msg.data.ice
 	     if (ice) {
-		 handleIceMessage(remoteUser, ice);
+		 // Clarification: `remoteUser` is the sender of the message,
+		 //                while `msg.remoteUser` is the recipient
+		 if (msg.data.remoteUser === userName) {
+		     handleIceMessage(ice, remoteUser);
+		 } else {
+		     console.log("[RTC] ignore ICE message addressed to user ", msg.remoteUser);
+		 }
 		 break;
 	     }
 	     var sdp = msg.data.sdp
 	     if (sdp) {
-		 handleSdpMessage(remoteUser, sdp);
+		 // Clarification: `remoteUser` is the sender of the message,
+		 //                while `msg.remoteUser` is the recipient
+		 if (msg.data.remoteUser === userName) {
+		     handleSdpMessage(sdp, remoteUser);
+		 } else {
+		     console.log("[RTC] ignore SDP message addressed to user ", msg.remoteUser);
+		 }
 		 break;
 	     }
 	     break;
@@ -748,7 +767,7 @@
 	 case "transcript":
 	     // set user id (global variable)
 	     userIDrtc = msg.id;
-	     console.log("[RTC] My user ID is " + userIDrtc);	     
+	     console.log("[RTC] My user ID is " + userIDrtc);
 	     break;
 	 case "leave":
 	     console.log("[RTC] remote peer left, restart ICE");

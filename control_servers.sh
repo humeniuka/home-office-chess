@@ -7,7 +7,7 @@
 #
 #
 
-# directory with private key and certificate
+# directory with private key ('privkey.pem') and certificate ('fullchain.pem')
 keyDir="/etc/letsencrypt/live/humeniuk.xyz"
 # port where signaling server listens
 portSignal=9000

@@ -98,6 +98,11 @@
 		    </div>
 		    <div class="vertical-spacer"></div>
 		</div>
+		<!-- The div with id="video-container-remote-template" is a template and is hidden.
+		     For every new remote user that connects, a copy of this template
+		     is made and inserted as a child of `video-container-list`, then its display style is set to 'block'
+		     to make it visible.
+		     //-->
 		<div id="video-container-remote-template" class="video-container popup" style="display: none">
 		    <div id="video-box-remote" class="video-box-remote">
 			<div id="video-user-name" class="video-user-name-remote popup-header"></div>

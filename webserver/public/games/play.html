@@ -91,10 +91,10 @@
 	    <div class="horizontal-spacer"></div>
 	    <!-- ========================= VIDEO CHAT WINDOW ================== //-->
 	    <div id="video-container-list" class="video-container-list">
-		<div id="video-container-local" class="video-container popup">
+		<div id="video-container-local" class="video-container popup" style="display: block" draggable="true">
 		    <div class="video-box-local">
 			<div id="video-user-name-local" style="display: none" class="video-user-name-local popup-header"></div>
-			<video id="localVideo" playsinline autoplay muted height="300px" width="400px"></video>
+			<video id="localVideo" autoplay="autoplay" playsinline muted height="300px" width="400px"></video>
 		    </div>
 		    <div class="vertical-spacer"></div>
 		</div>
@@ -103,10 +103,10 @@
 		     is made and inserted as a child of `video-container-list`, then its display style is set to 'block'
 		     to make it visible.
 		     //-->
-		<div id="video-container-remote-template" class="video-container popup" style="display: none">
+		<div id="video-container-remote-template" class="video-container popup" style="display: none" draggable="true">
 		    <div id="video-box-remote" class="video-box-remote">
 			<div id="video-user-name" class="video-user-name-remote popup-header"></div>
-			<video id="remoteVideo" playsinline autoplay height="300px" width="400px"></video>
+			<video id="remoteVideo" autoplay="autoplay" playsinline height="300px" width="400px"></video>
 		    </div>
 		    <div class="vertical-spacer"></div>
 		</div>

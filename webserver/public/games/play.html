@@ -121,10 +121,19 @@
 <script>
  'use strict';
 
- var urlParams = new URLSearchParams(window.location.search);
- var gameType = urlParams.get("game");
-
  // Which game should we play, chess or Go? It depends on the parameter game= in the query part of the URL
+ var urlParams = new URLSearchParams(window.location.search);
+ switch(urlParams.get("game")) {
+     case "go":
+	 var gameType = "go";
+	 break;
+     case "chess":
+	 var gameType = "chess";
+	 break;
+     default:
+	 var gameType = "chess";
+ }
+ 
  if (gameType === "go") {
      Chessboard = Goboard;
  }

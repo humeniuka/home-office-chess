@@ -17,12 +17,24 @@ portWeb=8085
 portSTUN=3478
 
 #
-# After making some changes to this script such as replacing relative
-# paths by absolute paths etc. it could be placed into /etc/init.d
-# to start the servers automatically if the machine is rebooted.
+# To automatically restart the servers after rebooting your machine
+# you can add the following command to your cron table:
 #
-#   sudo cp control_servers.sh /etc/init.d/home-office-server
-#   sudo update-rc.d home-office-server defaults
+#  @reboot sleep 60 && cd /your/path/to/home-office-chess; ./control_servers.sh  restart
+#
+# To edit the cron table run
+#
+#  crontab -e
+# 
+
+
+#
+# After making some changes to this script such as replacing relative paths by
+# absolute paths it could also be placed into /etc/init.d to start the servers
+# automatically if the machine is rebooted:
+#
+#   sudo ln -s $(readlink -f control_servers.sh) /etc/init.d/home-office-chess
+#   sudo update-rc.d home-office-chess defaults
 #
 
 ### BEGIN INIT INFO
@@ -33,12 +45,8 @@ portSTUN=3478
 # Should-Stop:       $network $time
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start and stop the STUN server, signaling server and web server
-#                    needed for the Home-Office-Chess application
-# Description:       The Home-Office-Chess application relies on three servers:
-#                    "stunserver", "webserver.js" and "signaling_server.js", which
-#                    can be controled with this script.
-#
+# Short-Description: Start and stop the STUN server, signaling server and web server needed for the Home-Office-Chess application
+# Description:       The Home-Office-Chess application relies on three servers: "stunserver", "webserver.js" and "signaling_server.js", which can be controled with this script.
 ### END INIT INFO
 
 

@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+	<script src="./skatjs/js/skat.js"></script>
+	<link rel="stylesheet" type="text/css" href="./skatjs/css/skat.css">
+    </head>
+    <body>
+
+	<div class="skat-container">
+	    <div class="row">
+		<div class="hand" id="hand-2-remote" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+		<div class="skat-horizontal-spacer"></div>
+		<div class="hand" id="hand-3-remote" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+	    </div>
+
+	    <div class="row">
+		<div class="off-table" id="off-table-attacker" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+		<div class="table" id="table" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+		<div class="off-table" id="off-table-defender" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+	    </div>
+
+	    <div class="row">
+		<button id="countBtn">Count</button>
+		<div style="min-width: 300px; "></div>
+		<button id="leftBtn">&larr;</button>
+		<div style="min-width: 300px; text-align: center; ">Stich geht an ...</div>
+		<button id="rightBtn">&rarr;</button>
+		<div style="min-width: 300px; "></div>
+		<button id="newGameBtn">New Game</button>
+	    </div>
+	    
+	    <div class="row">
+		<div class="hand" id="hand-1-local" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+	    </div>
+		
+	</div>
+	
+    </body>
+</html> 

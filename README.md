@@ -1,5 +1,5 @@
 # Home-Office Chess
-You can't play chess with your colleagues at work anymore because of the corona virus lock-down? "Work" from home!
+You can't play chess with your friends anymore because of the corona virus lock-down? Play from home!
 
 Home-Office Chess is a web application for video chatting and playing chess or Go online.
 
